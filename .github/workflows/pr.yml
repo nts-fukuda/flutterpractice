@@ -50,7 +50,7 @@ jobs:
         uses: MeilCli/danger-action@v5
         if: always()
         with:
-          plugins_file: 'Gemfile'
+          plugins_file: '.github/Gemfile'
           install_path: 'vendor/bundle'
           danger_file: '.github/Dangerfile'
           danger_id: 'danger-pr'
