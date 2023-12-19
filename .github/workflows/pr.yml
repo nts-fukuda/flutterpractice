@@ -12,7 +12,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  test:
+  lint:
+    name: Analyze
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -25,15 +26,6 @@ jobs:
           flutter-version: ${{ vars.FLUTTER_VERSION }}
           cache: true
 
-      - name: Setup ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version:  ${{ vars.DANGER_RUBY_VERSION }}
-          bundler-cache: false
-
-      - name: Add matcher
-        run: echo "::add-matcher::.github/problem-matcher-for-analyze.json"
-
       - name: Get dependencies
         run: flutter pub get
 
@@ -42,13 +34,16 @@ jobs:
         run: | 
           flutter analyze | tee ./flutter_analyze_report.txt
 
-      - name: Remove matcher
-        if: always()
-        run: echo "::remove-matcher owner=flutter_lints::"
+      - name: Setup ruby for Danger
+        if: ${{ failure() }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version:  ${{ vars.DANGER_RUBY_VERSION }}
+          bundler-cache: false
 
-      - name: Comment analyze error
+      - name: Setup danger
+        if: ${{ failure() }}
         uses: MeilCli/danger-action@v5
-        if: always()
         with:
           plugins_file: '.github/Gemfile'
           install_path: 'vendor/bundle'
@@ -57,6 +52,3 @@ jobs:
         env:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.TOKEN }}
 
-      - name: Test
-        if: always()
-        run: flutter test
