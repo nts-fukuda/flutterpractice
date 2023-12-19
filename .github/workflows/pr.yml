@@ -46,7 +46,7 @@ jobs:
         if: always()
         run: echo "::remove-matcher owner=flutter_lints::"
 
-      - name: Danger
+      - name: Comment analyze error
         uses: MeilCli/danger-action@v5
         if: always()
         with:
@@ -58,4 +58,5 @@ jobs:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.TOKEN }}
 
       - name: Test
+        if: always()
         run: flutter test
