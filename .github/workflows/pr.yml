@@ -22,13 +22,13 @@ jobs:
       - name: Setup flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.0'
+          flutter-version: ${{ vars.FLUTTER_VERSION }}
           cache: true
 
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
+          ruby-version:  ${{ vars.DANGER_RUBY_VERSION }}
           bundler-cache: true
 
       - name: Add matcher
