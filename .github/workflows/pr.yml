@@ -12,38 +12,47 @@ permissions:
   pull-requests: write
 
 jobs:
-  lint:
-    name: Analyze
+  analyze:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Setup flutter
+      - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ vars.FLUTTER_VERSION }}
+          channel: 'stable'
           cache: true
 
-      - name: Get dependencies
+      - name: Run flutter version
+        run: flutter --version
+
+      - name: Run flutter pub get
         run: flutter pub get
 
-      - name: Analyze
+      - name: Install matcher
+        run: echo "::add-matcher::.github/analyzer-problem-matcher.json"
+
+      - name: Run flutter analyze
         shell: bash
-        run: | 
+        run: |
           flutter analyze | tee ./flutter_analyze_report.txt
 
-      - name: Setup ruby for Danger
-        if: ${{ failure() }}
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version:  ${{ vars.DANGER_RUBY_VERSION }}
-          bundler-cache: false
+      - name: Remove matcher
+        if: always()
+        run: echo "::remove-matcher owner=dart-analyzer::"
 
-      - name: Setup danger
-        if: ${{ failure() }}
-        uses: MeilCli/danger-action@v5
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        if: always()
+        with:
+          ruby-version: '2.7'
+          bundler-cache: true
+
+      - name: Danger
+        uses: MeilCli/danger-action@1996610a4c089e3a79bf3131a70c3c1b311e32f9
+        if: always()
         with:
           plugins_file: '.github/Gemfile'
           install_path: 'vendor/bundle'
@@ -51,4 +60,3 @@ jobs:
           danger_id: 'danger-pr'
         env:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.TOKEN }}
-
