@@ -32,7 +32,7 @@ jobs:
         run: flutter pub get
 
       - name: Install matcher
-        run: echo "::add-matcher::.github/analyzer-problem-matcher.json"
+        run: echo "::add-matcher::.github/problem-matcher-for-analyze.json"
 
       - name: Run flutter analyze
         shell: bash
