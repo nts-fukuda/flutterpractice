@@ -1,11 +1,11 @@
-name: Distribution android test app
+name: CI Android
 
 on:
   push:
     branches:
-      branches: [ main ]
+      - main
     pull_request:
-      branches: [ main ]
+      - main
 
 jobs:
   build:
